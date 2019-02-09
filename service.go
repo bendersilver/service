@@ -1,65 +1,4 @@
-// Copyright 2015 Daniel Theophanes.
-// Use of this source code is governed by a zlib-style
-// license that can be found in the LICENSE file.
-
-// Package service provides a simple way to create a system service.
-// Currently supports Windows, Linux/(systemd | Upstart | SysV), and OSX/Launchd.
-//
-// Windows controls services by setting up callbacks that is non-trivial. This
-// is very different then other systems. This package provides the same API
-// despite the substantial differences.
-// It also can be used to detect how a program is called, from an interactive
-// terminal or from a service manager.
-//
-// Examples in the example/ folder.
-//
-//	package main
-//
-//	import (
-//		"log"
-//
-//		"github.com/kardianos/service"
-//	)
-//
-//	var logger service.Logger
-//
-//	type program struct{}
-//
-//	func (p *program) Start(s service.Service) error {
-//		// Start should not block. Do the actual work async.
-//		go p.run()
-//		return nil
-//	}
-//	func (p *program) run() {
-//		// Do work here
-//	}
-//	func (p *program) Stop(s service.Service) error {
-//		// Stop should not block. Return with a few seconds.
-//		return nil
-//	}
-//
-//	func main() {
-//		svcConfig := &service.Config{
-//			Name:        "GoServiceTest",
-//			DisplayName: "Go Service Test",
-//			Description: "This is a test Go service.",
-//		}
-//
-//		prg := &program{}
-//		s, err := service.New(prg, svcConfig)
-//		if err != nil {
-//			log.Fatal(err)
-//		}
-//		logger, err = s.Logger(nil)
-//		if err != nil {
-//			log.Fatal(err)
-//		}
-//		err = s.Run()
-//		if err != nil {
-//			logger.Error(err)
-//		}
-//	}
-package service // import "github.com/kardianos/service"
+package service
 
 import (
 	"errors"
@@ -81,6 +20,8 @@ const (
 	optionRunWait      = "RunWait"
 	optionReloadSignal = "ReloadSignal"
 	optionPIDFile      = "PIDFile"
+
+	optionSystemdKillMode = "SystemdScript"
 
 	optionSystemdScript = "SystemdScript"
 	optionSysvScript    = "SysvScript"
@@ -133,6 +74,8 @@ type Config struct {
 	//    - ReloadSignal  string () [USR1, ...]     - Signal to send on reaload.
 	//    - PIDFile       string () [/run/prog.pid] - Location of the PID file.
 	//    - LogOutput     bool   (false)            - Redirect StdErr & StdOut to files.
+	//  * systemd
+	//    - KillMode string (process)				- Specifies how processes of this unit shall be killed. One of control-group, process, mixed, none.
 	Option KeyValue
 }
 
